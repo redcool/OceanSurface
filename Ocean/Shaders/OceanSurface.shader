@@ -9,7 +9,6 @@ Shader "Custom/Ocean/OceanSurface"
         _Color1 ("Color1", Color) = (1,1,1,1)
 		_Color2("Color2", Color) = (1,1,1,1)
 
-        _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
 
@@ -42,8 +41,6 @@ Shader "Custom/Ocean/OceanSurface"
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
 #include "NodeLib.cginc"
-
-        sampler2D _MainTex;
 
         struct Input
         {
@@ -109,7 +106,7 @@ Shader "Custom/Ocean/OceanSurface"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-			//normal
+			//xz normal
 			float2 uv = (float2)0;
 			Unity_TilingAndOffset_float(IN.worldPos.xz, (float2)_NormalTile, float2(1, 0) * _Time.y * 0.15f * _NormalSpeed, uv);
 			float3 worldNormal1 = NormalStrength(UnpackNormal(tex2D(_NormalMap, uv)), _NormalStrength);
@@ -117,7 +114,9 @@ Shader "Custom/Ocean/OceanSurface"
 			Unity_TilingAndOffset_float(IN.worldPos.xz, (float2)_NormalTile,float2(-1, 0.3)* _Time.y * 0.15f * _NormalSpeed, uv);
 			float3 worldNormal2 = NormalStrength(UnpackNormal(tex2D(_NormalMap, uv)), _NormalStrength);
 
-			float rim = SimpleFresnal(_WorldSpaceCameraPos.xyz-IN.worldPos, IN.worldNormal,1);
+			//uv normal
+			float3 worldNormal = NormalStrength(UnpackNormal(tex2D(_NormalMap,IN.uv_MainTex)), _NormalStrength);
+			float fresnal = SimpleFresnal(_WorldSpaceCameraPos.xyz, worldNormal,1);
 
 			//wave
 			Unity_TilingAndOffset_float(IN.worldPos.xz * float2(0.02, 0.5), (float2)_WaveTile, float2(0, 1) * _Time.y * 0.15 * _WaveSpeed, uv);
@@ -135,7 +134,7 @@ Shader "Custom/Ocean/OceanSurface"
 			float4 foamCol = tex2D(_FoamTexture, uv) * _FoamColor;
 
             // Albedo comes from a texture tinted by color
-			float4 col = lerp(_Color1, _Color2, rim);
+			float4 col = lerp(_Color1, _Color2, fresnal);
 			o.Albedo = (col  * wave  + invDepth * foamCol);
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;

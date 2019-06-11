@@ -8,7 +8,11 @@ public class OceanDepth : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        cam.depthTextureMode = DepthTextureMode.Depth;
+        if (!cam)
+            cam = GetComponent<Camera>();
+
+        if (cam)
+            cam.depthTextureMode = DepthTextureMode.Depth;
     }
 
 
