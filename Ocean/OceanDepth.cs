@@ -12,7 +12,8 @@ public class OceanDepth : MonoBehaviour
     public RenderTexture depthTex;
     public Camera cam;
 
-    CommandBuffer blitBack, blitColor, blitDepth;
+    CommandBuffer blitBack, blitDepth;
+    public bool useCameraDepthMode = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +22,12 @@ public class OceanDepth : MonoBehaviour
 
         if (!cam)
             return;
+
+        if (useCameraDepthMode)
+        {
+            cam.depthTextureMode = DepthTextureMode.Depth;
+            return;
+        }
 
         InitBuffers(cam);
         InitCommands();
@@ -62,7 +69,7 @@ public class OceanDepth : MonoBehaviour
         // bind textures
         blitDepth.SetGlobalTexture("_CameraScreenTexture", colorRT);
         blitDepth.SetGlobalTexture("_CameraDepthTexture", depthTex);
-        cam.AddCommandBuffer(CameraEvent.AfterEverything, blitDepth);
+        cam.AddCommandBuffer(CameraEvent.AfterForwardOpaque, blitDepth);
     }
 
     private void InitBuffers(Camera cam)

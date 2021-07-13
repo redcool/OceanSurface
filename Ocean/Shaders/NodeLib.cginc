@@ -22,7 +22,7 @@ float3 BlendNormal(float3 a, float3 b) {
 }
 
 float SimpleFresnal(float3 n, float3 v,float power) {
-	return pow(1 - saturate(dot(normalize(n),normalize(v))),power);
+	return saturate(pow(1 - (dot(normalize(n),normalize(v))),power));
 }
 
 float Random(float s) {
