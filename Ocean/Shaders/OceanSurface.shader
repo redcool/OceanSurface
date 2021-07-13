@@ -26,7 +26,7 @@ Shader "Custom/Ocean/OceanSurface"
 		_FoamDepth("Foam Depth",float) = 1
 		_FoamTexture("Foam Texture",2d) = ""{}
 		_FoamTile("Foam Tile",float) = 1
-		_FoamSpeed("Foam Speed",float) = 1
+		_FoamSpeed("Foam Speed",float) = .1
 		_FoamColor("Foam Color",color) = (1,1,1,1)
     }
     SubShader
@@ -76,6 +76,7 @@ Shader "Custom/Ocean/OceanSurface"
 		float4 _FoamColor;
 
 		sampler2D _CameraDepthTexture;
+		sampler2D _CameraScreenTexture;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -127,6 +128,7 @@ Shader "Custom/Ocean/OceanSurface"
 
 			//depth
 			float d = LinearEyeDepth(tex2D(_CameraDepthTexture, IN.screenPos.xy / IN.screenPos.w).r);
+			
 			d = clamp(0,1, (d - IN.eyeDepth) * _FoamDepth);
 			float invDepth = 1 - d;
 			//foam
@@ -142,6 +144,8 @@ Shader "Custom/Ocean/OceanSurface"
             o.Alpha = col.a * d;
 
 			o.Normal = BlendNormal(worldNormal1, worldNormal2);
+		// o.Albedo =  tex2D(_CameraScreenTexture,IN.screenPos.xy/IN.screenPos.w);
+		// o.Albedo = foamCol;
         }
         ENDCG
     }
