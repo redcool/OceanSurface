@@ -144,8 +144,6 @@ Shader "Custom/Ocean/OceanSurface"
             o.Alpha = col.a * d;
 
 			o.Normal = BlendNormal(worldNormal1, worldNormal2);
-		// o.Albedo =  tex2D(_CameraScreenTexture,IN.screenPos.xy/IN.screenPos.w);
-		// o.Albedo = foamCol;
         }
         ENDCG
     }
